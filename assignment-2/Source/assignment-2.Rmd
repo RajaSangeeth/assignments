@@ -171,6 +171,11 @@ b) Explore another relation of variables in the dataset. Your analysis should (i
 
 ```{r}
 # YOUR CODE HERE  ##regression
+irldf <- irldf %>% mutate(session_start_updated = as_date(session_start), 
+                              session_end_updated = as_date(session_end), 
+                              inoffice = as.numeric((session_end -                                                                            session_start)/365.25))
+
+table1::table1(~ session +party +constituency + inoffice, irldf)
 ```
 
 <div class = "answer">
@@ -186,13 +191,20 @@ YOUR ANSWER SHOULD GO HERE
 a) Program a function ultimate_answer() that always returns the number 42, and prove that it works! [1 point]
 
 ```{r}
-# YOUR CODE HERE
+# 
+ultimate_answer <- function(x){
+  function() {
+    ((x*42)/x)
+  }
+}
+ultimate_answer(1)
 ```
 
 b) Program a function normalize() that normalizes a numeric vector x to mean(x) = 0 and sd(x) = 1! Then, apply it to all numeric variables in the mtcars dataset! [2 points]
 
 ```{r}
-# YOUR CODE HERE
+# 
+normalize() <- function(x)
 ```
 
 
