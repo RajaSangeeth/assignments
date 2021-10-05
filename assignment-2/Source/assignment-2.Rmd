@@ -78,7 +78,7 @@ Answer) Ireland has 9% female legislators in the dataset
 
 irl_house_core <- get_core(legislature = "irl")
 
-irl_house_core %>% 
+irl_house_core_1 <- irl_house_core %>% 
   group_by(sex) %>% 
   summarise(n = n()) %>% 
   mutate(prop =n /sum(n, na.rm = T))
@@ -89,12 +89,13 @@ b) How many (both in absolute and relative terms) legislators died in the same p
 Answer) 42 legislators died and were born in the same place
 ```{r}
 # 
-irl_house_core <- irl_house_core %>% 
+irl_house_core_2 <- irl_house_core %>% 
   mutate(birth_death = ifelse(birthplace == deathplace, yes = TRUE, no = FALSE)) %>% 
-# add column to return 'TRUE' if birth and death place coordinates are the same
   group_by(birth_death) %>%
   summarise(n = n()) %>%
   mutate(proportion = n/sum(n))
+
+# add column to return 'TRUE' if birth and death place coordinates are the same
 ```
 
 c) Create a new variable `age_at_death` that reports the age at which legislators died. Then, plot the distribution of that variable for the entire dataset. [2 points]
@@ -102,16 +103,17 @@ c) Create a new variable `age_at_death` that reports the age at which legislator
 ```{r}
 class(irl_house_core$death)
 ## using package lubridate to change the birth and death format of variables to date
-as_date(irl_house_core$death)
-as_date(irl_house_core$birth)
+## creating new variable and calculating age at death in years
 
-## creating new variable and calcualitng age at death 
-irl_house_core <- irl_house_core %>% 
-              mutate(age_at_death = (death - birth)/365)
+irl_house_core <- irl_house_core %>% mutate(death_updated = as_date(death), 
+                              birth_updated = as_date(birth), 
+                              age_at_death = as.numeric((death_updated -          birth_updated)/365.25))
 
-ggplot(irl_house_core)
-              
-?lubridate
+##ggplot histrogram to show the age at death of legislators
+ggplot(irl_house_core, aes(x= age_at_death)) +
+   geom_histogram(bandwith = 2, color = "black" ,  fill = "grey") +
+  labs(x = "Legislators age at death(Years)", y = "Number of legislators")+
+  theme_economist() + scale_colour_economist()
 ```
 
 d) Provide one single table that provides the 5 legislators with the highest and lowest age at death, ignoring ties. [2 points]
@@ -125,17 +127,17 @@ bottom_5 <- irl_house_core %>%
   select(name, age_at_death) %>%
   slice_min(n = 5, order_by = age_at_death) 
 
-# Bind together
-top5_high_low <- as_tibble((bind_rows(top_5, bottom_5)))
+# Bind together, HighandLow_Age_at_death_Legislator shows a table of 5 legislators with the highest and lowest age at death
+HighandLow_Age_at_death_Legislator  <- as_tibble((bind_rows(top_5, bottom_5)))
 ```
 
 e) Find out who has got the longest name and who the shortest (both in terms of number of characters, ignoring whitespace)! [2 points]
 
 ```{r}
 ##using package stringr
-irl_house_core %>% 
-   mutate(name_lenght =as.character(name_lenght)) %>% 
-   arrange(str_length(name_lenght), name_
+irl_house_core <- irl_house_core %>% 
+   mutate(name_lenght = as.character(name)) %>% 
+   
        
 
 ```
@@ -149,7 +151,20 @@ irl_house_core %>%
 a) Using data from all sessions, provide a plot that shows the share of female legislators by session! [3 points]
 
 ```{r}
-# YOUR CODE HERE
+##loaded the politcal dataset so at to get session information
+irl_house_pol <- get_political(legislature = "irl")
+
+## left joined the core dataset to the political dataset because politcal dataset has ~5000 something observation and core only ~1400 so i wanted to retain all the data, the other way around would have lost data from politcal dataset
+irldf <- left_join(irl_house_pol,irl_house_core)
+```
+
+```{r}
+ggplot(irldf) +
+   geom_bar(position = "stack", aes(x=session, y=sex),
+           bandwith = 2, color = "black", fill = "pink")+
+           labs(x = "Legislative sessions" , y = "number of female legislators") +
+          theme_economist() +
+         scale_colour_economist()
 ```
 
 b) Explore another relation of variables in the dataset. Your analysis should (i) use data from both the `core` and the `political` table and (ii) feature data from several sessions. Also, offer a brief description and interpretation of your findings! [5 points]
