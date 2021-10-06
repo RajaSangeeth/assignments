@@ -173,7 +173,7 @@ b) Explore another relation of variables in the dataset. Your analysis should (i
 # YOUR CODE HERE  ##regression
 irldf <- irldf %>% mutate(session_start_updated = as_date(session_start), 
                               session_end_updated = as_date(session_end), 
-                              inoffice = as.numeric((session_end -                                                                            session_start)/365.25))
+                              inoffice = as.numeric((session_end -                                                                            session_start)/365.25)) 
 
 table1::table1(~ session +party +constituency + inoffice, irldf)
 ```
